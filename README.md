@@ -433,12 +433,12 @@ ViewModels.cs
         }
     }
 	
-	public class ProstieZvonkiState : INotifyPropertyChanged
+    public class ProstieZvonkiState : INotifyPropertyChanged
     {
         public ProstieZvonkiCallCommand CallCommand { get; }
 		
-		...
-	}
+	...
+    }
 ```
 
 Cделаем номера телефонов клиентов ссылками. Для этого заменим код, отвечающий за заполнение таблицы с контактами:
@@ -450,28 +450,28 @@ Cделаем номера телефонов клиентов ссылками.
 на 
 
 ```xml
-    <Button Grid.Row="0" Grid.Column="1" Margin="5" Width="Auto" FontSize="14" Content="{Binding Phone}" Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}, Path=DataContext.State.CallCommand}" CommandParameter="{Binding Phone}">
-		<Button.Style>
-			<Style TargetType="Button">
-				<Setter Property="VerticalAlignment" Value="Center"/>
-				<Setter Property="HorizontalAlignment" Value="Center"/>
-				<Setter Property="Cursor" Value="Hand"/>
-				<Setter Property="Foreground" Value="#FF1D60BF"/>
-				<Setter Property="Background" Value="Transparent"/>
-				<Setter Property="Template">
-					<Setter.Value>
-						<ControlTemplate TargetType="Button">
-							<TextBlock Text="{TemplateBinding Content}" Background="{TemplateBinding Background}"/>
-							<ControlTemplate.Triggers>
-								<Trigger Property="IsPressed" Value="True">
-									<Setter Property="Foreground" Value="#FFCB1C1C"/>
-								</Trigger>
-							</ControlTemplate.Triggers>
-						</ControlTemplate>
-					</Setter.Value>
-				</Setter>
-			</Style>
-		</Button.Style>
+    <Button Grid.Row="0" Grid.Column="1" Margin="5" Width="Auto" FontSize="14" Content="{Binding Phone}" Command="{Binding     RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}, Path=DataContext.State.CallCommand}" CommandParameter="{Binding Phone}">
+	<Button.Style>
+		<Style TargetType="Button">
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="HorizontalAlignment" Value="Center"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Foreground" Value="#FF1D60BF"/>
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<TextBlock Text="{TemplateBinding Content}" Background="{TemplateBinding Background}"/>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsPressed" Value="True">
+								<Setter Property="Foreground" Value="#FFCB1C1C"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</Button.Style>
     </Button>
 ```
 
