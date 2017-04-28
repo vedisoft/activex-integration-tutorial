@@ -84,11 +84,11 @@ MainWindow.xaml:
 
 После установки потребуется подключить ActiveX-компонент к проекту:
 
-![Подключаем ActiveX_1](https://github.com/vedisoft/access-integration-tutorial/raw/master/img/references_1.png)
-![Подключаем ActiveX_2](https://github.com/vedisoft/access-integration-tutorial/raw/master/img/references_2.png)
-![Подключаем ActiveX_3](https://github.com/vedisoft/access-integration-tutorial/raw/master/img/references_3.png)
-![Подключаем ActiveX_4](https://github.com/vedisoft/access-integration-tutorial/raw/master/img/references_4.png)
-![Подключаем ActiveX_5](https://github.com/vedisoft/access-integration-tutorial/raw/master/img/references_5.png)
+![Подключаем ActiveX_1](https://github.com/vedisoft/activex-integration-tutorial/raw/master/img/references_1.png)
+![Подключаем ActiveX_2](https://github.com/vedisoft/activex-integration-tutorial/raw/master/img/references_2.png)
+![Подключаем ActiveX_3](https://github.com/vedisoft/activex-integration-tutorial/raw/master/img/references_3.png)
+![Подключаем ActiveX_4](https://github.com/vedisoft/activex-integration-tutorial/raw/master/img/references_4.png)
+![Подключаем ActiveX_5](https://github.com/vedisoft/activex-integration-tutorial/raw/master/img/references_5.png)
 
 Теперь нужно скачать [тестовый сервер и диагностическую утилиту](https://github.com/vedisoft/pz-developer-tools).
 
@@ -350,8 +350,8 @@ MainWindow.xaml:
 
 Теперь наше приложение выглядит так:
 
-![Индикатор состояния соединения](https://github.com/vedisoft/js-sdk-tutorial/raw/master/img/connection-indicator.png)
+![Индикатор состояния соединения](https://github.com/vedisoft/activex-integration-tutorial/raw/master/img/connection-indicator.png)
 
 Попробуем подключиться к серверу:
 
-![Соединение установлено](https://github.com/vedisoft/js-sdk-tutorial/raw/master/img/connection-established.png)
+![Соединение установлено](https://github.com/vedisoft/activex-integration-tutorial/raw/master/img/connection-established.png)
