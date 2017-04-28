@@ -18,7 +18,7 @@
 ViewModels.cs:
 
 ```cs
-	public class Contact
+    public class Contact
     {
         public string Name { get; }
         public string Phone { get; }
