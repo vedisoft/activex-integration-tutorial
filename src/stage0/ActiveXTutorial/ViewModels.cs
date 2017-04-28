@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Globalization;
-using System.Text.RegularExpressions;
-using System.Windows;
-using System.Windows.Input;
+﻿using System.Collections.ObjectModel;
 
 namespace ActiveXTutorial
 {
