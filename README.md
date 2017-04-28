@@ -368,7 +368,7 @@ ProstieZvonki.cs
         // для которого будем обрабатывать события
         private const string UserNumber = "101";
 		
-		...
+        ...
     }
 ```
 
@@ -379,7 +379,7 @@ ProstieZvonki.cs
 ```cs
     public class ProstieZvonki
     {
-	    ...
+        ...
 	
         public void Call(string phone)
         {
@@ -437,7 +437,7 @@ ViewModels.cs
     {
         public ProstieZvonkiCallCommand CallCommand { get; }
 		
-	...
+	    ...
     }
 ```
 
