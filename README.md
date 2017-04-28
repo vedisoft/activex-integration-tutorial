@@ -353,3 +353,134 @@ MainWindow.xaml:
 Попробуем подключиться к серверу:
 
 ![Соединение установлено](https://github.com/vedisoft/activex-integration-tutorial/raw/master/img/connection-established.png)
+
+Шаг 2. Исходящие звонки кликом по номеру
+----------------------------------------
+
+Для начала в классе ProstieZvonki определим внутренний номер телефона сотрудника, от имени которого будет совершен звонок:
+
+ProstieZvonki.cs
+
+```cs
+    public class ProstieZvonki
+    {
+        // внутренний номер телефона сотрудника, 
+        // для которого будем обрабатывать события
+        private const string UserNumber = "101";
+		
+		...
+    }
+```
+
+A также сам метод совершения исходящего вызова:
+
+ProstieZvonki.cs
+
+```cs
+    public class ProstieZvonki
+    {
+	    ...
+	
+        public void Call(string phone)
+        {
+            var result = control.Call(
+                UserNumber,      // внутренний номер сотрудника
+                phone            // номер телефона, на который нужно позвонить
+                );
+
+            if (result != 0)
+            {
+                throw new ProstieZvonkiException(string.Format("Call returned bad result: {0}", result));
+            }
+        }
+    }
+```
+
+Затем определим в файле ViewModels.cs класс ProstieZvonkiCallCommand и добавим экземпляр этого класса в ProstieZvonkiState, чтобы иметь возможность совершать звонок через графический интерфейс:
+
+ViewModels.cs
+
+```cs
+    public class ProstieZvonkiCallCommand : ICommand
+    {
+        public ProstieZvonkiCallCommand()
+        {
+
+        }
+
+        public event EventHandler CanExecuteChanged
+        {
+            add
+            {
+                CommandManager.RequerySuggested += value;
+            }
+
+            remove
+            {
+                CommandManager.RequerySuggested -= value;
+            }
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return ProstieZvonki.Instance.IsConnected;
+        }
+
+        public void Execute(object parameter)
+        {
+            var phone = (string)parameter;
+            ProstieZvonki.Instance.Call(phone);
+        }
+    }
+	
+	public class ProstieZvonkiState : INotifyPropertyChanged
+    {
+        public ProstieZvonkiCallCommand CallCommand { get; }
+		
+		...
+	}
+```
+
+Cделаем номера телефонов клиентов ссылками. Для этого заменим код, отвечающий за заполнение таблицы с контактами:
+
+```xml
+    <TextBlock Grid.Row="0" Grid.Column="1" Padding="10" Width="Auto" FontSize="14" Text="{Binding Phone}"/>
+```
+
+на 
+
+```xml
+    <Button Grid.Row="0" Grid.Column="1" Margin="5" Width="Auto" FontSize="14" Content="{Binding Phone}" Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}, Path=DataContext.State.CallCommand}" CommandParameter="{Binding Phone}">
+		<Button.Style>
+			<Style TargetType="Button">
+				<Setter Property="VerticalAlignment" Value="Center"/>
+				<Setter Property="HorizontalAlignment" Value="Center"/>
+				<Setter Property="Cursor" Value="Hand"/>
+				<Setter Property="Foreground" Value="#FF1D60BF"/>
+				<Setter Property="Background" Value="Transparent"/>
+				<Setter Property="Template">
+					<Setter.Value>
+						<ControlTemplate TargetType="Button">
+							<TextBlock Text="{TemplateBinding Content}" Background="{TemplateBinding Background}"/>
+							<ControlTemplate.Triggers>
+								<Trigger Property="IsPressed" Value="True">
+									<Setter Property="Foreground" Value="#FFCB1C1C"/>
+								</Trigger>
+							</ControlTemplate.Triggers>
+						</ControlTemplate>
+					</Setter.Value>
+				</Setter>
+			</Style>
+		</Button.Style>
+    </Button>
+```
+
+![Делаем телефоны ссылками](https://github.com/vedisoft/activex-integration-tutorial/raw/master/img/phone-links.png)
+
+Кликнув на номер клиента, посмотрим на вывод тестового сервера:
+
+```
+Call event from CRM: src = 101, dst = +7 (343) 0112233
+```
+
+Как мы видим, сервер получил запрос на создание исходящего звонка с номера 101 на номер +7 (343) 0112233.
