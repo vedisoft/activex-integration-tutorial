@@ -594,3 +594,227 @@ public class ProstieZvonkiState : INotifyPropertyChanged
 Приложение должно незамедлительно отобразить модальное диалоговое окно:
 
 ![Карточка входящего звонка](https://github.com/vedisoft/activex-integration-tutorial/raw/master/img/incoming-popup.png)
+
+Шаг 4. История звонков
+----------------------
+
+Чтобы заполнить таблицу информацией о совершённых звонках, нам нужно обрабатывать соответствующие события, поэтому добавим в класс ProstieZvonki обработчик события OnCompletedCall:
+
+ProstieZvonki.cs
+
+```cs
+public class ProstieZvonki
+{
+	// будем оповещать "внешний" код о наступивших событиях 
+	public delegate void CompletedCallEventHandler(bool isIncoming, string src, string dst, int start, int duration);
+	public event CompletedCallEventHandler CompletedCallEvent;
+	
+	// ...
+
+	private ProstieZvonki()
+	{
+		// ...
+
+		// обрабатываем нужные события
+		control.OnCompletedCall += OnCompletedCall;
+	}
+
+	private void OnCompletedCall(string callID, string src, string dst, int duration, string start, string end, int direction, string record, string line)
+	{
+		var isIncoming = direction == 0;
+		var timestamp = Convert.ToInt32(start);
+
+		CompletedCallEvent(isIncoming, src, dst, timestamp, duration);
+	}
+	
+	// ...
+}
+```
+
+Для хранения информации о совершенных звонках добавим в проект класс CallHistoryStorage:
+
+ViewModels.cs
+
+```cs
+public class CallHistoryInfo
+{
+	public string Direction { get; }
+	public string Phone { get; }
+	public string Name { get; }
+	public string StartTime { get; }
+	public string Duration { get; }
+
+	public CallHistoryInfo(bool isIncoming, string phone, string name, int startTime, int duration)
+	{
+		Direction = isIncoming ? "Входящий" : "Исходящий";
+		Phone = phone;
+		Name = name;
+
+		var datetime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+		datetime = datetime.AddSeconds(startTime).ToLocalTime();
+		StartTime = datetime.ToString(CultureInfo.InvariantCulture);
+
+		var time = TimeSpan.FromSeconds(duration);
+		Duration = time.ToString();
+	}
+}
+
+public class CallHistoryStorage
+{
+	public ObservableCollection<CallHistoryInfo> Items { get; }
+
+	public CallHistoryStorage()
+	{
+		Items = new ObservableCollection<CallHistoryInfo>();
+	}
+
+	public void AddRecord(CallHistoryInfo info)
+	{
+		// будем хранить последние три звонка
+		if (Items.Count > 2)
+		{
+			Items.RemoveAt(0);
+		}
+
+		Items.Add(info);
+	}
+}
+```
+
+Обновим класс ProstieZvonkiState, добавив обработчик события CompletedCallEvent класса ProstieZvonki:
+
+ViewModels.cs
+
+```cs
+public class ProstieZvonkiState : INotifyPropertyChanged
+{
+	private CallHistoryStorage callHistoryStorage;
+
+	// ...
+	
+	public ProstieZvonkiState(ContactsStorage contacts, CallHistoryStorage history)
+	{
+		callHistoryStorage = history;
+
+		// ...
+		
+		ProstieZvonki.Instance.CompletedCallEvent += OnCompletedCall;
+	}
+
+	private void OnCompletedCall(bool isIncoming, string src, string dst, int start, int duration)
+	{
+		var phone = isIncoming ? src : dst;
+		var name = FindContactName(phone);
+
+		callHistoryStorage.AddRecord(new CallHistoryInfo(isIncoming, phone, name, start, duration));
+	}
+	
+	// ...
+}
+```
+
+На главное окно приложения поместим ещё одну таблицу:
+
+MainWindow.xaml
+
+```xml
+<Label Margin="0,10,0,0" Padding="0,0,0,0" Content="История звонков" FontSize="24" FontWeight="SemiBold"/>
+<HeaderedItemsControl Margin="0,10,0,0" DataContext="{StaticResource MainViewModel}" ItemTemplate="{DynamicResource CallHistoryItemTemplate}" ItemsSource="{Binding CallHistory.Items}">
+	<HeaderedItemsControl.Resources>
+		<DataTemplate x:Key="CallHistoryItemTemplate">
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="110"/>
+					<ColumnDefinition Width="110"/>
+					<ColumnDefinition Width="110"/>
+					<ColumnDefinition Width="160"/>
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+
+				<Border Grid.Row="0" Grid.Column="0" Margin="0,-1,0,0" BorderBrush="Silver" BorderThickness="1">
+					<TextBlock Padding="10" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" Text="{Binding Direction}"/>
+				</Border>
+				<Border Grid.Row="0" Grid.Column="1" Margin="-1,-1,0,0"  BorderBrush="Silver" BorderThickness="1">
+					<TextBlock Grid.Row="0" Grid.Column="1" Margin="8,5,8,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" FontSize="14" Text="{Binding Phone}"/>
+				</Border>
+				<Border Grid.Row="0" Grid.Column="2" Margin="-1,-1,0,0"  BorderBrush="Silver" BorderThickness="1">
+					<TextBlock Grid.Row="0" Grid.Column="1" Margin="8,5,8,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" FontSize="14" Text="{Binding Name}"/>
+				</Border>
+				<Border Grid.Row="0" Grid.Column="3" Margin="-1,-1,0,0"  BorderBrush="Silver" BorderThickness="1">
+					<TextBlock Grid.Row="0" Grid.Column="1" Margin="8,5,8,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" FontSize="14" Text="{Binding StartTime}"/>
+				</Border>
+				<Border Grid.Row="0" Grid.Column="4" Margin="-1,-1,0,0"  BorderBrush="Silver" BorderThickness="1">
+					<TextBlock Grid.Row="0" Grid.Column="1" Margin="8,5,8,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" FontSize="14" Text="{Binding Duration}"/>
+				</Border>
+			</Grid>
+		</DataTemplate>
+		<Style TargetType="{x:Type HeaderedItemsControl}">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type HeaderedItemsControl}">
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="110"/>
+								<ColumnDefinition Width="110"/>
+								<ColumnDefinition Width="110"/>
+								<ColumnDefinition Width="160"/>
+								<ColumnDefinition Width="*" />
+							</Grid.ColumnDefinitions>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="*"/>
+							</Grid.RowDefinitions>
+
+							<Border Grid.Row="0" Grid.Column="0" Margin="0,-1,0,0" BorderBrush="Silver" BorderThickness="1">
+								<TextBlock Padding="10" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" FontWeight="DemiBold" Text="Направление"/>
+							</Border>
+							<Border Grid.Row="0" Grid.Column="1" Margin="-1,-1,0,0"  BorderBrush="Silver" BorderThickness="1">
+								<TextBlock Grid.Row="0" Grid.Column="1" Margin="8,5,8,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" FontSize="14" FontWeight="DemiBold" Text="Телефон"/>
+							</Border>
+							<Border Grid.Row="0" Grid.Column="2" Margin="-1,-1,0,0"  BorderBrush="Silver" BorderThickness="1">
+								<TextBlock Grid.Row="0" Grid.Column="1" Margin="8,5,8,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" FontSize="14" FontWeight="DemiBold" Text="Клиент"/>
+							</Border>
+							<Border Grid.Row="0" Grid.Column="3" Margin="-1,-1,0,0"  BorderBrush="Silver" BorderThickness="1">
+								<TextBlock Grid.Row="0" Grid.Column="1" Margin="8,5,8,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" FontSize="14" FontWeight="DemiBold" Text="Начало звонка"/>
+							</Border>
+							<Border Grid.Row="0" Grid.Column="4" Margin="-1,-1,0,0"  BorderBrush="Silver" BorderThickness="1">
+								<TextBlock Grid.Row="0" Grid.Column="1" Margin="8,5,8,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" FontSize="14" FontWeight="DemiBold" Text="Длительность"/>
+							</Border>
+							<Grid Grid.Row="1" Grid.ColumnSpan="5" Width="Auto" Height="Auto" Background="White">
+								<ItemsPresenter/>
+							</Grid>
+						</Grid>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</HeaderedItemsControl.Resources>
+</HeaderedItemsControl>
+```
+
+А также немного увеличим размеры самого окна, чтобы уместить новую таблицу:
+
+```xml
+<Window x:Class="ActiveXTutorial.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ActiveXTutorial"
+        mc:Ignorable="d"
+        Title="TinyCRM" Height="550" Width="650">
+</Window>
+```
+
+Теперь главное окно приложения должно выглядеть так:
+
+![История звонков](https://github.com/vedisoft/activex-integration-tutorial/raw/master/img/history-empty.png)
+
+Для проверки создадим два события истории с помощью диагностической утилиты:
+
+```
+[events off]> Generate history 101 73430112233 1378913389 1378913592 123 out
+[events off]> Generate history 73430112211 101 1378914389 1378914592 250 in
+```
+
+![История звонков](https://github.com/vedisoft/js-sdk-tutorial/raw/master/img/history.png)
