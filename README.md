@@ -499,11 +499,11 @@ public class ProstieZvonki
 	public delegate void TransferredCallEventHandler(string src, string dst);
 	public event TransferredCallEventHandler TransferredCallEvent;
 
-    // ...
+    	// ...
 	
 	private ProstieZvonki()
 	{
-        // ...
+        	// ...
 		
 		// подписываемся на события для нашего внутреннего номера
 		control.phoneNumber = UserNumber;
@@ -513,11 +513,11 @@ public class ProstieZvonki
 	}
 	
 	private void OnTransferredCall(string callID, string src, string dst, string line)
-    {
-        TransferredCallEvent(src, dst);
-    }
+    	{
+        	TransferredCallEvent(src, dst);
+    	}
 	
-    // ...
+    	// ...
 }
 ```
 
@@ -530,13 +530,13 @@ public class ProstieZvonkiState : INotifyPropertyChanged
 {
 	private ContactsStorage contactsStorage;
     
-    // ...
+    	// ...
 
 	public ProstieZvonkiState(ContactsStorage contacts)
 	{
 		contactsStorage = contacts;
         
-        // ...
+        	// ...
 		
 		ProstieZvonki.Instance.TransferredCallEvent += OnTransferredCall;
 	}
@@ -571,15 +571,15 @@ public class ProstieZvonkiState : INotifyPropertyChanged
 	}
 
 	private string RefinedPhone(string phone)
-    {
+    	{
 		// приводим телефонные номера к единой форме для поиска в базе контактов
 		var result = Regex.Replace(phone, "[^0-9]", "");
 
 		var phoneMaxLen = 10;
 		return result.Substring(result.Length > phoneMaxLen ? result.Length - phoneMaxLen : 0);
-    }
+    	}
 	
-    // ...
+    	// ...
 }
 ```
 
