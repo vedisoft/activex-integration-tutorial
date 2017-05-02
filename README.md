@@ -306,7 +306,7 @@ MainWindow.xaml:
 
     <Border Grid.Row="0" Grid.Column="0" CornerRadius="10" Margin="0,0,0,10">
         <Border.Resources>
-            Style TargetType="TextBlock">
+            <Style TargetType="TextBlock">
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding State.IsConnected}" Value="True">
                         <Setter Property="Text" Value="Соединение установлено"/>
@@ -333,7 +333,7 @@ MainWindow.xaml:
         <Button.Style>
             <Style TargetType="{x:Type Button}">
                 <Style.Triggers>
-                    DataTrigger Binding="{Binding State.IsConnected}" Value="True">
+                    <DataTrigger Binding="{Binding State.IsConnected}" Value="True">
                         <Setter Property="Content" Value="Разъединить"/>
                     </DataTrigger>
                     <DataTrigger Binding="{Binding State.IsConnected}" Value="False">
