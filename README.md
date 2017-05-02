@@ -129,7 +129,7 @@ namespace ActiveXTutorial
         public delegate void ConnectionStateChangedEventHandler(bool isConnected);
         public event ConnectionStateChangedEventHandler ConnectionStateChangedEvent;
 
-        // объект используется для вызова методов "Простых Звонков"
+        // ссылка на ActiveX-компонент, которая используется для работы с сервисом "Простых Звонков"
         private CTIControlX control;
 
         // сохраненное состояние соединения с сервером
@@ -818,3 +818,97 @@ MainWindow.xaml
 ```
 
 ![История звонков](https://github.com/vedisoft/js-sdk-tutorial/raw/master/img/history.png)
+
+Шаг 5. Умная переадресация
+--------------------------
+
+Чтобы воспользоваться функцией умной переадресации, нужно определить, какие звонки сотрудник хочет получать.
+
+Будем считать, что все контакты, отображаемые на странице, закреплены за нашим сотрудником. Таким образом, условием для переадресации звонка будет наличие номера телефона звонящего в нашей базе контактов.
+
+Функция для поиска в базе у нас уже есть, так что остаётся только добавить обработку событий трансфера. Поэтому снова добавляем обработчик события в класс ProstieZvonki, на этот раз OnTransferRequest. Также сразу добавим функцию Transfer, которая и будет осуществлять переадресацию:
+
+ProstieZvonki.cs
+
+```cs
+public class ProstieZvonki
+{
+	// будем оповещать "внешний" код о наступивших событиях 
+	public delegate void TransferRequestEventHandler(string callID, string from);
+	public event TransferRequestEventHandler TransferRequestEvent;
+
+	// ...
+
+	private ProstieZvonki()
+	{
+		// ...
+		
+		// обрабатываем нужные события
+		control.OnTransferRequest += OnTransferRequest;
+	}
+
+	public void Transfer(string callId)
+	{
+		var result = control.Transfer(
+			callId,         // идентификационный номер звонка
+			UserNumber      // внутренний номер сотрудника
+			);
+
+		if (result != 0)
+		{
+			throw new ProstieZvonkiException(string.Format("Transfer returned bad result: {0}", result));
+		}
+	}
+
+	private void OnTransferRequest(string callID, string from, string line)
+	{
+		TransferRequestEvent(callID, from);
+	}
+	
+	// ...
+}
+```
+
+И опять-таки, подобно двум предыдущим примерам, обновим класс ProstieZvonkiState, добавив обработчик события TransferRequestEvent класса ProstieZvonki:
+
+```cs
+public class ProstieZvonkiState : INotifyPropertyChanged
+{
+	public ProstieZvonkiState(ContactsStorage contacts, CallHistoryStorage history)
+	{
+		// ...
+		
+		ProstieZvonki.Instance.TransferRequestEvent += OnTransferRequest;
+	}
+
+	private void OnTransferRequest(string callID, string from)
+	{
+		var name = FindContactName(from);
+		if (name == string.Empty)
+		{
+			return;
+		}
+
+		ProstieZvonki.Instance.Transfer(callID);
+	}
+	
+	// ...
+}
+```
+
+Чтобы проверить функцию трансфера, отправим запрос с помощью диагностической утилиты:
+
+```
+[events off]> Generate incoming 73430112233
+```
+
+В консоли сервера мы должны увидеть, что приложение отправило запрос на перевод звонка на нашего пользователя:
+
+```
+Transfer event from CRM: callID = 391568605052929, to = 101
+```
+
+Ура!
+----
+
+Теперь наше приложение умеет показывать "карточки" со входящими звонками и переводить звонки прикреплённых клиентов, а пользователь может позвонить клиенту в один клик и посмотреть историю совершённых звонков.
