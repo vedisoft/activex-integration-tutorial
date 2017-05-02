@@ -598,7 +598,7 @@ public class ProstieZvonkiState : INotifyPropertyChanged
 Шаг 4. История звонков
 ----------------------
 
-Чтобы заполнить таблицу информацией о совершённых звонках, нам нужно обрабатывать соответствующие события, поэтому добавим в класс ProstieZvonki обработчик события OnCompletedCall:
+Чтобы заполнить таблицу информацией о совершённых звонках, нам нужно обрабатывать соответствующие события. Поэтому добавим в класс ProstieZvonki обработчик события OnCompletedCall:
 
 ProstieZvonki.cs
 
@@ -817,7 +817,7 @@ MainWindow.xaml
 [events off]> Generate history 73430112211 101 1378914389 1378914592 250 in
 ```
 
-![История звонков](https://github.com/vedisoft/js-sdk-tutorial/raw/master/img/history.png)
+![История звонков](https://github.com/vedisoft/activex-integration-tutorial/raw/master/img/history.png)
 
 Шаг 5. Умная переадресация
 --------------------------
