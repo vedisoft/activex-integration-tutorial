@@ -5,8 +5,8 @@
 
 В данном примере мы рассмотрим процесс подключения к серверу "Простых Звонков" Windows-приложения, написанного на С#(можно использовать любой язык программирования, поддерживающий ActiveX-компоненты). Мы начнём с приложения, выводящего на экран список клиентов из базы данных, и добавим в него следующие функции:
 
-- отображение всплывающей карточки при входящем звонке
 - звонок клиенту по клику на телефонный номер
+- отображение всплывающей карточки при входящем звонке
 - история входящих и исходящих звонков
 - умная переадресация на менеджера клиента
 
@@ -132,7 +132,7 @@ namespace ActiveXTutorial
         // объект используется для вызова методов "Простых Звонков"
         private CTIControlX control;
 
-        // сохранненое состояние соединения с сервером
+        // сохраненное состояние соединения с сервером
         public bool IsConnected { get; private set; }
 
         // используем паттерн Singleton для доступа к функциональности, 
@@ -368,7 +368,7 @@ public class ProstieZvonki
 	// для которого будем обрабатывать события
 	private const string UserNumber = "101";
 	
-	...
+	// ...
 }
 ```
 
@@ -379,7 +379,7 @@ ProstieZvonki.cs
 ```cs
 public class ProstieZvonki
 {
-	...
+	// ...
 
 	public void Call(string phone)
 	{
@@ -437,7 +437,7 @@ public class ProstieZvonkiState : INotifyPropertyChanged
 {
 	public ProstieZvonkiCallCommand CallCommand { get; }
 	
-	...
+	// ...
 }
 ```
 
@@ -499,11 +499,11 @@ public class ProstieZvonki
 	public delegate void TransferredCallEventHandler(string src, string dst);
 	public event TransferredCallEventHandler TransferredCallEvent;
 
-    ...
+    // ...
 	
 	private ProstieZvonki()
 	{
-	    ...
+        // ...
 		
 		// подписываемся на события для нашего внутреннего номера
 		control.phoneNumber = UserNumber;
@@ -517,24 +517,26 @@ public class ProstieZvonki
         TransferredCallEvent(src, dst);
     }
 	
-    ...
+    // ...
 }
 ```
 
 В класс ProstieZvonkiState добавим обработчик события TransferredCallEvent класса ProstieZvonki. В этом обработчике воспользуемся стандартным диалоговым окном для вывода информации о входящем звонке:
 
+ViewModels.cs
+
 ```cs
 public class ProstieZvonkiState : INotifyPropertyChanged
 {
 	private ContactsStorage contactsStorage;
-
-    ...
+    
+    // ...
 
 	public ProstieZvonkiState(ContactsStorage contacts)
 	{
 		contactsStorage = contacts;
-
-	    ...
+        
+        // ...
 		
 		ProstieZvonki.Instance.TransferredCallEvent += OnTransferredCall;
 	}
@@ -569,15 +571,15 @@ public class ProstieZvonkiState : INotifyPropertyChanged
 	}
 
 	private string RefinedPhone(string phone)
-	{
+    {
 		// приводим телефонные номера к единой форме для поиска в базе контактов
 		var result = Regex.Replace(phone, "[^0-9]", "");
 
 		var phoneMaxLen = 10;
 		return result.Substring(result.Length > phoneMaxLen ? result.Length - phoneMaxLen : 0);
-	}
+    }
 	
-    ...
+    // ...
 }
 ```
 
