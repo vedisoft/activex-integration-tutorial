@@ -22,10 +22,10 @@ namespace ActiveXTutorial
         // для которого будем обрабатывать события
         private const string UserNumber = "101";
 
-        // объект используется для вызова методов "Простых Звонков"
+        // ссылка на ActiveX-компонент, которая используется для работы с сервисом "Простых Звонков"
         private CTIControlX control;
 
-        // сохранненое состояние соединения с сервером
+        // сохраненное состояние соединения с сервером
         public bool IsConnected { get; private set; }
 
         // используем паттерн Singleton для доступа к функциональности, 
@@ -35,11 +35,10 @@ namespace ActiveXTutorial
         private ProstieZvonki()
         {
             control = new CTIControlX();
-            control.phoneNumber = UserNumber;
 
             IsConnected = false;
 
-            // подписываемся на нужные события
+            // обрабатываем нужные события
             control.OnConnectionState += OnConnectionState;
         }
 

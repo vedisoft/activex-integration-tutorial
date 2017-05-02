@@ -18,10 +18,10 @@ namespace ActiveXTutorial
         public delegate void ConnectionStateChangedEventHandler(bool isConnected);
         public event ConnectionStateChangedEventHandler ConnectionStateChangedEvent;
 
-        // объект используется для вызова методов "Простых Звонков"
+        // ссылка на ActiveX-компонент, которая используется для работы с сервисом "Простых Звонков"
         private CTIControlX control;
 
-        // сохранненое состояние соединения с сервером
+        // сохраненное состояние соединения с сервером
         public bool IsConnected { get; private set; }
 
         // используем паттерн Singleton для доступа к функциональности, 
@@ -34,7 +34,7 @@ namespace ActiveXTutorial
 
             IsConnected = false;
 
-            // подписываемся на нужные события
+            // обрабатываем нужные события
             control.OnConnectionState += OnConnectionState;
         }
 
