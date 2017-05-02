@@ -362,14 +362,14 @@ MainWindow.xaml:
 ProstieZvonki.cs
 
 ```cs
-    public class ProstieZvonki
-    {
-        // внутренний номер телефона сотрудника, 
-        // для которого будем обрабатывать события
-        private const string UserNumber = "101";
-		
-        ...
-    }
+public class ProstieZvonki
+{
+	// внутренний номер телефона сотрудника, 
+	// для которого будем обрабатывать события
+	private const string UserNumber = "101";
+	
+	...
+}
 ```
 
 A также сам метод совершения исходящего вызова:
@@ -377,23 +377,23 @@ A также сам метод совершения исходящего выз�
 ProstieZvonki.cs
 
 ```cs
-    public class ProstieZvonki
-    {
-        ...
-	
-        public void Call(string phone)
-        {
-            var result = control.Call(
-                UserNumber,      // внутренний номер сотрудника
-                phone            // номер телефона, на который нужно позвонить
-                );
+public class ProstieZvonki
+{
+	...
 
-            if (result != 0)
-            {
-                throw new ProstieZvonkiException(string.Format("Call returned bad result: {0}", result));
-            }
-        }
-    }
+	public void Call(string phone)
+	{
+		var result = control.Call(
+			UserNumber,      // внутренний номер сотрудника
+			phone            // номер телефона, на который нужно позвонить
+			);
+
+		if (result != 0)
+		{
+			throw new ProstieZvonkiException(string.Format("Call returned bad result: {0}", result));
+		}
+	}
+}
 ```
 
 Затем определим в файле ViewModels.cs класс ProstieZvonkiCallCommand и добавим экземпляр этого класса в ProstieZvonkiState, чтобы иметь возможность совершать звонок через графический интерфейс:
@@ -401,78 +401,78 @@ ProstieZvonki.cs
 ViewModels.cs
 
 ```cs
-    public class ProstieZvonkiCallCommand : ICommand
-    {
-        public ProstieZvonkiCallCommand()
-        {
+public class ProstieZvonkiCallCommand : ICommand
+{
+	public ProstieZvonkiCallCommand()
+	{
 
-        }
+	}
 
-        public event EventHandler CanExecuteChanged
-        {
-            add
-            {
-                CommandManager.RequerySuggested += value;
-            }
+	public event EventHandler CanExecuteChanged
+	{
+		add
+		{
+			CommandManager.RequerySuggested += value;
+		}
 
-            remove
-            {
-                CommandManager.RequerySuggested -= value;
-            }
-        }
+		remove
+		{
+			CommandManager.RequerySuggested -= value;
+		}
+	}
 
-        public bool CanExecute(object parameter)
-        {
-            return ProstieZvonki.Instance.IsConnected;
-        }
+	public bool CanExecute(object parameter)
+	{
+		return ProstieZvonki.Instance.IsConnected;
+	}
 
-        public void Execute(object parameter)
-        {
-            var phone = (string)parameter;
-            ProstieZvonki.Instance.Call(phone);
-        }
-    }
+	public void Execute(object parameter)
+	{
+		var phone = (string)parameter;
+		ProstieZvonki.Instance.Call(phone);
+	}
+}
+
+public class ProstieZvonkiState : INotifyPropertyChanged
+{
+	public ProstieZvonkiCallCommand CallCommand { get; }
 	
-    public class ProstieZvonkiState : INotifyPropertyChanged
-    {
-        public ProstieZvonkiCallCommand CallCommand { get; }
-		
-	    ...
-    }
+	...
+}
 ```
 
 Cделаем номера телефонов клиентов ссылками. Для этого заменим код, отвечающий за заполнение таблицы с контактами:
 
 ```xml
-    <TextBlock Grid.Row="0" Grid.Column="1" Padding="10" Width="Auto" FontSize="14" Text="{Binding Phone}"/>
+<TextBlock Grid.Row="0" Grid.Column="1" Padding="10" Width="Auto" FontSize="14" Text="{Binding Phone}"/>
 ```
 
 на 
 
 ```xml
-    <Button Grid.Row="0" Grid.Column="1" Margin="5" Width="Auto" FontSize="14" Content="{Binding Phone}" Command="{Binding     RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}, Path=DataContext.State.CallCommand}" CommandParameter="{Binding Phone}">
-	<Button.Style>
-		<Style TargetType="Button">
-			<Setter Property="VerticalAlignment" Value="Center"/>
-			<Setter Property="HorizontalAlignment" Value="Center"/>
-			<Setter Property="Cursor" Value="Hand"/>
-			<Setter Property="Foreground" Value="#FF1D60BF"/>
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Template">
-				<Setter.Value>
-					<ControlTemplate TargetType="Button">
-						<TextBlock Text="{TemplateBinding Content}" Background="{TemplateBinding Background}"/>
-						<ControlTemplate.Triggers>
-							<Trigger Property="IsPressed" Value="True">
-								<Setter Property="Foreground" Value="#FFCB1C1C"/>
-							</Trigger>
-						</ControlTemplate.Triggers>
-					</ControlTemplate>
-				</Setter.Value>
-			</Setter>
-		</Style>
-	</Button.Style>
-    </Button>
+<Button Grid.Row="0" Grid.Column="1" Margin="5" Width="Auto" FontSize="14" Content="{Binding Phone}" Command="{Binding     RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}, Path=DataContext.State.CallCommand}" CommandParameter="{Binding Phone}">
+<Button.Style>
+	<Style TargetType="Button">
+		<Setter Property="VerticalAlignment" Value="Center"/>
+		<Setter Property="HorizontalAlignment" Value="Center"/>
+		<Setter Property="Cursor" Value="Hand"/>
+		<Setter Property="Foreground" Value="#FF1D60BF"/>
+		<Setter Property="Background" Value="Transparent"/>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="Button">
+					<TextBlock Text="{TemplateBinding Content}" Background="{TemplateBinding Background}"/>
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsPressed" Value="True">
+							<Setter Property="Foreground" Value="#FFCB1C1C"/>
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+</Button.Style>
+</Button>
 ```
 
 ![Делаем телефоны ссылками](https://github.com/vedisoft/activex-integration-tutorial/raw/master/img/phone-links.png)
@@ -484,3 +484,111 @@ Call event from CRM: src = 101, dst = +7 (343) 0112233
 ```
 
 Как мы видим, сервер получил запрос на создание исходящего звонка с номера 101 на номер +7 (343) 0112233.
+
+Шаг 3. Всплывающая карточка входящего звонка
+--------------------------------------------
+
+Для начала научимся обрабатывать события о входящих звонках от сервера "Простых Звонков". Для этого в классе ProstieZvonki подпишемся на события для нашего внутреннего номера и добавим обработчик события OnTransferredCall:
+
+ProstieZvonki.cs
+
+```cs
+public class ProstieZvonki
+{
+	// будем оповещать "внешний" код о наступивших событиях 
+	public delegate void TransferredCallEventHandler(string src, string dst);
+	public event TransferredCallEventHandler TransferredCallEvent;
+
+    ...
+	
+	private ProstieZvonki()
+	{
+	    ...
+		
+		// подписываемся на события для нашего внутреннего номера
+		control.phoneNumber = UserNumber;
+
+		// обрабатываем нужные события
+		control.OnTransferredCall += OnTransferredCall;
+	}
+	
+	private void OnTransferredCall(string callID, string src, string dst, string line)
+    {
+        TransferredCallEvent(src, dst);
+    }
+	
+    ...
+}
+```
+
+В класс ProstieZvonkiState добавим обработчик события TransferredCallEvent класса ProstieZvonki. В этом обработчике воспользуемся стандартным диалоговым окном для вывода информации о входящем звонке:
+
+```cs
+public class ProstieZvonkiState : INotifyPropertyChanged
+{
+	private ContactsStorage contactsStorage;
+
+    ...
+
+	public ProstieZvonkiState(ContactsStorage contacts)
+	{
+		contactsStorage = contacts;
+
+	    ...
+		
+		ProstieZvonki.Instance.TransferredCallEvent += OnTransferredCall;
+	}
+
+	private void OnTransferredCall(string src, string dst)
+	{
+		var button = MessageBoxButton.OK;
+		var icon = MessageBoxImage.Information;
+		var name = FindContactName(src);
+		var caption = "TinyCRM";
+		var text = string.Format("Звонок{0}", name != string.Empty ? string.Format(": {0}", name) : 
+			string.Format(" c неизвестного номера {0}", src));
+
+		MessageBox.Show(Application.Current.MainWindow, text, caption, button, icon);
+	}
+
+	private string FindContactName(string phone)
+	{
+		var name = string.Empty;
+		var refined = RefinedPhone(phone);
+
+		foreach (var contact in contactsStorage.Items)
+		{
+			if (RefinedPhone(contact.Phone) == refined)
+			{
+				name = contact.Name;
+				break;
+			}
+		}
+
+		return name;
+	}
+
+	private string RefinedPhone(string phone)
+	{
+		// приводим телефонные номера к единой форме для поиска в базе контактов
+		var result = Regex.Replace(phone, "[^0-9]", "");
+
+		var phoneMaxLen = 10;
+		return result.Substring(result.Length > phoneMaxLen ? result.Length - phoneMaxLen : 0);
+	}
+	
+    ...
+}
+```
+
+> Как видите, мы воспользовались вспомогательной функцией для очистки номера телефона от посторонних символов и кода страны. Таким образом, поиск по номерам `+7 (343) 0112233` и `83430112233` будет выдавать одинаковый результат, что нам и нужно.
+
+Чтобы проверить работу всплывающей "карточки", создадим входящий звонок с номера 73430112233 на номер 101 с помощью диагностической утилиты Diagnostic.exe:
+
+```
+[events off]> Generate transfer 73430112233 101
+```
+
+Приложение должно незамедлительно отобразить модальное диалоговое окно:
+
+![Карточка входящего звонка](https://github.com/vedisoft/activex-integration-tutorial/raw/master/img/incoming-popup.png)

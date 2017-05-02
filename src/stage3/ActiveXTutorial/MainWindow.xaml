@@ -1,0 +1,110 @@
+﻿<Window x:Class="ActiveXTutorial.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ActiveXTutorial"
+        mc:Ignorable="d"
+        Title="TinyCRM" Height="350" Width="525">
+    
+    <Window.Resources>
+        <local:MainViewModel x:Key="MainViewModel"/>
+    </Window.Resources>
+
+    <Grid>
+        <StackPanel Margin="10,0,10,0">
+            <Label Content="TinyCRM" Padding="0,0,0,0" FontSize="28" FontWeight="SemiBold"/>
+            <Label Margin="0,30,0,0" Padding="0,0,0,0" Content="База клиентов" FontSize="24" FontWeight="SemiBold"/>
+            <ItemsControl Margin="0,10,0,0" DataContext="{StaticResource MainViewModel}" ItemsSource="{Binding Contacts.Items}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Border Grid.Row="0" Grid.Column="0" Margin="0,-1,0,0" BorderBrush="Silver" BorderThickness="1">
+                                <TextBlock Padding="10" HorizontalAlignment="Left" FontSize="14" Text="{Binding Name}"/>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="1" Margin="-1,-1,0,0"  BorderBrush="Silver" BorderThickness="1">
+                                <Button Grid.Row="0" Grid.Column="1" Margin="5" Width="Auto" FontSize="14" Content="{Binding Phone}"
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}, Path=DataContext.State.CallCommand}" 
+                                        CommandParameter="{Binding Phone}">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="Cursor" Value="Hand"/>
+                                            <Setter Property="Foreground" Value="#FF1D60BF"/>
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <TextBlock Text="{TemplateBinding Content}" Background="{TemplateBinding Background}"/>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsPressed" Value="True">
+                                                                <Setter Property="Foreground" Value="#FFCB1C1C"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Grid Margin="0,20,0,0" DataContext="{StaticResource MainViewModel}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Row="0" Grid.Column="0" CornerRadius="10" Margin="0,0,0,10">
+                    <Border.Resources>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding State.IsConnected}" Value="True">
+                                    <Setter Property="Text" Value="Соединение установлено"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding State.IsConnected}" Value="False">
+                                    <Setter Property="Text" Value="Нет соединения"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding State.IsConnected}" Value="True">
+                                    <Setter Property="Background" Value="#FF419541"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding State.IsConnected}" Value="False">
+                                    <Setter Property="Background" Value="#FFB2B2B2"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Resources>
+                    <TextBlock Padding="8,2,8,2" HorizontalAlignment="Left" Foreground="White" FontSize="12"/>
+                </Border>
+                <Button Grid.Row="0" Grid.Column="2" Width="90" Command="{Binding State.ConnectCommand}" CommandParameter="{Binding State.IsConnected}">
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding State.IsConnected}" Value="True">
+                                    <Setter Property="Content" Value="Разъединить"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding State.IsConnected}" Value="False">
+                                    <Setter Property="Content" Value="Соединить"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</Window>
